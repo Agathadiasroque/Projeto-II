@@ -1,72 +1,117 @@
 ---
 title: "TÍTULO DO TRABALHO"
 author: "Autor do Trabalho"
+
 format:
   dashboard:
-     theme: 
-      - sketchy
-      - olympicdash.scss
-     orientation: columns
-     expandable: True
-     scrolling: False
-     nav-buttons:
-      - icon: instagram
-        href: https://instagram.com
-      - icon: envelope
-        href: mailto:guilhermev@id.uff.br
-      - icon: github
-        href: https://github.com/GuilhermeGETUFF
+    theme: morph
+    orientation: columns
+    expandable: true
+    scrolling: false
+
 server: shiny
+
+css: bootstrap.min.css
 ---
 
 ```{r}
 #| context: setup
 # O comando context: setup é importantíssimo para que
 # todos os pacotes funcionem perfeitamente no código todo
-library(ggplot2)
-library(shiny)
+library(shiny) 
+library(ggplot2) 
+library(bslib)
 ```
 
-# **ABA 1**
+# **ABA 1 - Contextualização**
 
 ## Coluna1 {width="50%"}
 
-### Linha1 {height="50%"}
+### Linha1 {height="55%"}
 
 ```{r}
-#| title: Texto Explicativo
+#| title: 1. O que é o câncer de pulmão?
 #| results: asis
 
 cat("
 
-Aqui vai o texto grande que você quer mostrar. Pode ser várias linhas, com **negrito**, *itálico*, listas:
-
-- Item 1
-- Item 2
-- Item 3
-
-E até [links](https://exemplo.com) se precisar.
-
-Você pode colocar imagens também:
-
-![](images/Rstudio.png)
-
+O câncer de pulmão é uma doença caracterizada pelo crescimento descontrolado de células anormais nos pulmões. É um dos tipos de câncer mais incidentes e uma das principais causas de morte por câncer no mundo.
 ")
+
+#| component: valuebox
+#| title: Principal causa
+
+list(
+  value = "Tabagismo",
+  icon = "lungs",
+  color = "danger"
+)
+#| component: valuebox
+#| title: Tipo mais comum
+
+list(
+  value = "Não Pequenas Células",
+  icon = "clipboard2-pulse",
+  color = "primary"
+)
+#| component: valuebox
+#| title: Letalidade
+
+list(
+  value = "Alta",
+  icon = "exclamation-triangle",
+  color = "warning"
+)
 
 ```
 
-### Linha2 {height="50%"}
+### Principais características {height="45%"}
 
 ```{r}
-#| title: Título do Gráfico
-#| fig-width: 4
-#| fig-height: 3
-ggplot(pressure, aes(temperature, pressure)) + geom_line()
+#| title: Características da doença 
+#| results: asis 
+
+cat(" 
+### 🧬 Crescimento celular descontrolado 
+Multiplicação rápida e anormal das células pulmonares. 
+
+### 😮‍💨 Sintomas frequentes 
+- Tosse persistente 
+- Falta de ar 
+- Dor torácica 
+- Rouquidão 
+
+### 🩸 Tosse com sangue Pode ocorrer em estágios mais avançados. 
+
+### 📈 Metástase Pode atingir cérebro, fígado, ossos e linfonodos. 
+
+")
+
+#| title: Sistema Respiratório
+
+
+
+#| component: valuebox
+#| title: Sistema afetado
+
+list(
+  value = "Respiratório",
+  icon = "lungs",
+  color = "info"
+)
+#| component: valuebox
+#| title: Possíveis metástases
+
+list(
+  value = "4 principais locais",
+  icon = "diagram-3",
+  color = "secondary"
+)
 ```
 
 ## Coluna2 {width="50%"}
 
-### Linha1 {height="40%"}
+### Orgãos e sistemas afetados {height="45%"}
 
 ```{r}
 #| component: valuebox
@@ -99,13 +144,53 @@ color = "red"
 )
 ```
 
-### linha2 {.tabset height="60%"}
+### Principais fatores associados {.tabset height="55%"}
 
 ```{r}
-#| title: Título SubGráfico 1
-#| fig-width: 4
-#| fig-height: 3
-ggplot(mtcars, aes(mpg)) + geom_density()
+#| title: Tabagismo
+#| results: asis
+
+cat("
+
+### 🚬 Tabagismo
+
+Responsável pela maioria dos casos de câncer de pulmão.
+
+É considerado o principal fator de risco da doença.
+
+")
+#| title: Exposição Ambiental
+#| results: asis
+
+cat("
+
+### 🏭 Poluição do ar
+
+A exposição prolongada à poluição aumenta o risco.
+
+### ☢️ Radônio
+
+Gás radioativo encontrado naturalmente em algumas regiões.
+
+### ⚙️ Amianto
+
+Substância associada ao aumento do risco de câncer pulmonar.
+
+")
+#| title: Histórico Familiar
+#| results: asis
+
+cat("
+
+### 👨‍👩‍👧 Histórico Familiar
+
+Ter parentes de primeiro grau com câncer de pulmão pode aumentar o risco.
+
+### 🚭 Tabagismo Passivo
+
+A exposição à fumaça de terceiros também é prejudicial.
+
+")
 ```
 
 ```{r}
