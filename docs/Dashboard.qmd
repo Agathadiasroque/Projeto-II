@@ -5,6 +5,7 @@ format:
   dashboard:
      theme: 
       - lux
+      - olympicdash.scss
      orientation: columns
      expandable: True
      scrolling: False
@@ -26,15 +27,17 @@ server: shiny
 library(ggplot2)
 library(shiny)
 library(readxl)
+library(dplyr)
 
-Cancer = read_xlsx("C:\\Users\\agath\\OneDrive\\Documentos\\Trabalho Prática 2\\Projeto-II\\docs\\MortalidadeCancer.xlsx")
+dados <- read_excel("/home/aluno/Documentos/agatha - projeto 2/Projeto-II/docs/MortalidadeCancer.xlsx")
+
 ```
 
 # **ABA 1**
 
 ## Coluna1 {width="50%"}
 
-### Linha1 {height="40%"}
+### Linha1 {height="60%"}
 
 ```{r}
 #| title: O que é câncer de pulmão?
@@ -48,25 +51,11 @@ cat("
 - Linfonodos
 - Figado
 - Ossos
-- Grlandulas adrenais
-
+- Glândulas adrenais
 ")
-
 ```
 
-### Linha2 {height="60%"}
-
-```{r}
-#| title: Comparação dos tipos de Câncer
-#| fig-width: 4
-#| fig-height: 3
-ggplot(Cancer, aes(x=Cancer)) + geom_histogram()
-```
-
-## Coluna2 {width="50%"}
-
-### Linha1 {height="30%"}
-
+### Linha2 {height="40%"}
 ```{r}
 #| component: valuebox
 #| title: Pricipal causa 
@@ -94,7 +83,33 @@ list(
 )
 ```
 
-### linha2 {.tabset height="60%"}
+
+## Coluna2 {width="50%"}
+
+### Linha1 {height="50%"}
+
+```{r}
+#| title: Comparação dos tipos de Câncer
+#| fig-width: 5
+#| fig-height: 4
+dados_graf <- dados %>%
+  group_by(Cancer) %>%
+  summarise(total_n = sum(n, na.rm = TRUE))
+
+ggplot(dados_graf,
+       aes(x = reorder(Cancer, total_n),
+           y = total_n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    x = "Tipo de Câncer",
+    y = "Total de casos",
+    title = "Total de casos por tipo de câncer"
+  ) +
+  theme_minimal()
+```
+
+### linha2 {.tabset height="50%"}
 
 ```{r}
 #| title: Título SubGráfico 1
