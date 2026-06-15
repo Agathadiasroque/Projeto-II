@@ -1,196 +1,106 @@
 ---
 title: "TÍTULO DO TRABALHO"
 author: "Autor do Trabalho"
-
 format:
   dashboard:
-    theme: morph
-    orientation: columns
-    expandable: true
-    scrolling: false
-
+     theme: 
+      - lux
+     orientation: columns
+     expandable: True
+     scrolling: False
+     css: custom.css
+     nav-buttons:
+      - icon: instagram
+        href: https://instagram.com
+      - icon: envelope
+        href: mailto:guilhermev@id.uff.br
+      - icon: github
+        href: https://github.com/GuilhermeGETUFF
 server: shiny
-
-css: bootstrap.min.css
 ---
 
 ```{r}
 #| context: setup
 # O comando context: setup é importantíssimo para que
 # todos os pacotes funcionem perfeitamente no código todo
-library(shiny) 
-library(ggplot2) 
-library(bslib)
+library(ggplot2)
+library(shiny)
+library(readxl)
+
+Cancer = read_xlsx("C:\\Users\\agath\\OneDrive\\Documentos\\Trabalho Prática 2\\Projeto-II\\docs\\MortalidadeCancer.xlsx")
 ```
 
-# **ABA 1 - Contextualização**
+# **ABA 1**
 
 ## Coluna1 {width="50%"}
 
-### Linha1 {height="55%"}
+### Linha1 {height="40%"}
 
 ```{r}
-#| title: 1. O que é o câncer de pulmão?
+#| title: O que é câncer de pulmão?
 #| results: asis
+#| layout-ncol: 2
 
 cat("
+É uma doença caracterizada pelo crescimento descontrolado de células anormais nos pulmões. É um dos tipos mais incidentes e uma das principais causas de morte por câncer no mundo, e pode afetar além do sistema respiratório:
 
-O câncer de pulmão é uma doença caracterizada pelo crescimento descontrolado de células anormais nos pulmões. É um dos tipos de câncer mais incidentes e uma das principais causas de morte por câncer no mundo.
+- Cérebro
+- Linfonodos
+- Figado
+- Ossos
+- Grlandulas adrenais
+
 ")
-
-#| component: valuebox
-#| title: Principal causa
-
-list(
-  value = "Tabagismo",
-  icon = "lungs",
-  color = "danger"
-)
-#| component: valuebox
-#| title: Tipo mais comum
-
-list(
-  value = "Não Pequenas Células",
-  icon = "clipboard2-pulse",
-  color = "primary"
-)
-#| component: valuebox
-#| title: Letalidade
-
-list(
-  value = "Alta",
-  icon = "exclamation-triangle",
-  color = "warning"
-)
 
 ```
 
-### Principais características {height="45%"}
+### Linha2 {height="60%"}
 
 ```{r}
-#| title: Características da doença 
-#| results: asis 
-
-cat(" 
-### 🧬 Crescimento celular descontrolado 
-Multiplicação rápida e anormal das células pulmonares. 
-
-### 😮‍💨 Sintomas frequentes 
-- Tosse persistente 
-- Falta de ar 
-- Dor torácica 
-- Rouquidão 
-
-### 🩸 Tosse com sangue Pode ocorrer em estágios mais avançados. 
-
-### 📈 Metástase Pode atingir cérebro, fígado, ossos e linfonodos. 
-
-")
-
-#| title: Sistema Respiratório
-
-
-
-#| component: valuebox
-#| title: Sistema afetado
-
-list(
-  value = "Respiratório",
-  icon = "lungs",
-  color = "info"
-)
-#| component: valuebox
-#| title: Possíveis metástases
-
-list(
-  value = "4 principais locais",
-  icon = "diagram-3",
-  color = "secondary"
-)
+#| title: Comparação dos tipos de Câncer
+#| fig-width: 4
+#| fig-height: 3
+ggplot(Cancer, aes(x=Cancer)) + geom_histogram()
 ```
 
 ## Coluna2 {width="50%"}
 
-### Orgãos e sistemas afetados {height="45%"}
+### Linha1 {height="30%"}
 
 ```{r}
 #| component: valuebox
-#| title: Hours since last earthquake
-x=5
+#| title: Pricipal causa 
 list(
-  icon = "stopwatch",
-  color = "primary",
-  value = x
+  color = "#fcefdc",
+  value = "🚬 Tabagismo"
 )
 ```
 
 ```{r}
 #| component: valuebox
-#| title: Usuários Online Agora
+#| title: Letalidade do diagnóstico tardio
 list(
-  value = 128,
-  icon = "people",
-  color = "blue"
+  color = "#f0bab9",
+  value = "📈 Elevada"
 )
 ```
 
 ```{r}
 #| component: valuebox
-#| title: Tentativas de Login Suspeitas
+#| title: Orgãos e sistemas afetados
 list(
-value = 12,
-icon = "shield-exclamation",
-color = "red"
+  value = "🫁  Sistema respiratório",
+  color = "#adb5bd"
 )
 ```
 
-### Principais fatores associados {.tabset height="55%"}
+### linha2 {.tabset height="60%"}
 
 ```{r}
-#| title: Tabagismo
-#| results: asis
-
-cat("
-
-### 🚬 Tabagismo
-
-Responsável pela maioria dos casos de câncer de pulmão.
-
-É considerado o principal fator de risco da doença.
-
-")
-#| title: Exposição Ambiental
-#| results: asis
-
-cat("
-
-### 🏭 Poluição do ar
-
-A exposição prolongada à poluição aumenta o risco.
-
-### ☢️ Radônio
-
-Gás radioativo encontrado naturalmente em algumas regiões.
-
-### ⚙️ Amianto
-
-Substância associada ao aumento do risco de câncer pulmonar.
-
-")
-#| title: Histórico Familiar
-#| results: asis
-
-cat("
-
-### 👨‍👩‍👧 Histórico Familiar
-
-Ter parentes de primeiro grau com câncer de pulmão pode aumentar o risco.
-
-### 🚭 Tabagismo Passivo
-
-A exposição à fumaça de terceiros também é prejudicial.
-
-")
+#| title: Título SubGráfico 1
+#| fig-width: 4
+#| fig-height: 3
+ggplot(mtcars, aes(mpg)) + geom_density()
 ```
 
 ```{r}
