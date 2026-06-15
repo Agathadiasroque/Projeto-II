@@ -90,7 +90,7 @@ grid-auto-rows: minmax(0, 1fr);">
 O que é câncer de pulmão?
 </span></div></div>
 <div class="card-body html-fill-item html-fill-container">
-<div class="cell quarto-layout-panel html-fill-item html-fill-container" data-layout-ncol="2" title="O que é câncer de pulmão?">
+<div class="cell quarto-layout-panel html-fill-item html-fill-container" title="O que é câncer de pulmão?" data-layout-ncol="2">
 <div class="quarto-layout-row html-fill-item html-fill-container">
 <div class="quarto-layout-cell html-fill-item html-fill-container" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p>É uma doença caracterizada pelo crescimento descontrolado de células anormais nos pulmões. É um dos tipos mais incidentes e uma das principais causas de morte por câncer no mundo, e pode afetar além do sistema respiratório:</p>
@@ -166,7 +166,7 @@ Comparação dos tipos de Câncer
 </span></div></div>
 <div class="card-body html-fill-item html-fill-container">
 <div class="cell-output-display html-fill-item html-fill-container">
-<img src="Dashboard_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid quarto-dashboard-img-contain">
+<img src="Dashboard_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid quarto-figure quarto-figure-center quarto-dashboard-img-contain" style="width:100.0%">
 </div>
 </div>
 <bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
@@ -340,6 +340,7 @@ library(ggplot2)
 library(shiny)
 library(readxl)
 library(dplyr)
+library(scales)
 
 dados <- read_excel("/home/aluno/Documentos/agatha - projeto 2/Projeto-II/docs/MortalidadeCancer.xlsx")
 
