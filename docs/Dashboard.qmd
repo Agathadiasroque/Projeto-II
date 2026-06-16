@@ -26,15 +26,18 @@ server: shiny
 library(ggplot2)
 library(shiny)
 library(readxl)
+library(dplyr)
+library(scales)
 
-Cancer = read_xlsx("C:\\Users\\agath\\OneDrive\\Documentos\\Trabalho Prática 2\\Projeto-II\\docs\\MortalidadeCancer.xlsx")
+dados <- read_excel("MortalidadeCancer.xlsx")
+
 ```
 
 # **ABA 1**
 
-## Coluna1 {width="50%"}
+## Coluna1 {width="40%"}
 
-### Linha1 {height="40%"}
+### Linha1 {height="50%"}
 
 ```{r}
 #| title: O que é câncer de pulmão?
@@ -48,53 +51,154 @@ cat("
 - Linfonodos
 - Figado
 - Ossos
-- Grlandulas adrenais
-
+- Glândulas adrenais
 ")
-
 ```
 
-### Linha2 {height="60%"}
+
+### Linha 2 {height="25%"}
+```{r}
+#| component: valuebox
+#| title: Crescimento celular acelerado
+list(
+  color = "#e0e1e2",
+  value = "🧫"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Tosse persistente, falta de ar, dor no peito, rouquidão e fadiga
+
+list(
+  color = "#e0e1e2",
+  value = "😮💨"
+)
+```
+
+### Linha 3 {height="25%"}
+
+```{r}
+#| component: valuebox
+#| title: Tosse com sangue
+list(
+  value = "🩸",
+  color = "#e0e1e2"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Alto potencial de metastase
+list(
+  value = "📈",
+  color = "#e0e1e2"
+)
+```
+
+
+## Coluna2 {width="60%"}
+
+### Linha 2 {height="25%"}
+```{r}
+#| component: valuebox
+#| title: Tabagismo
+list(
+  color = "#e0e1e2",
+  value = "🚬"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Poluição
+
+list(
+  color = "#e0e1e2",
+  value = "🏭"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Radônio
+
+list(
+  color = "#e0e1e2",
+  value = "☢️"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Amianto e químicos
+list(
+  value = "🧪",
+  color = "#e0e1e2"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Histórico familiar
+list(
+  value = "👨‍👩‍👧",
+  color = "#e0e1e2"
+)
+```
 
 ```{r}
 #| title: Comparação dos tipos de Câncer
-#| fig-width: 4
+#| fig-width: 16
 #| fig-height: 3
-ggplot(Cancer, aes(x=Cancer)) + geom_histogram()
+#| out-width: 100%
+#| fig-align: center
+
+dados_graf <- dados %>%
+  group_by(Cancer) %>%
+  summarise(total_n = sum(n, na.rm = TRUE)) %>%
+  arrange(total_n)
+
+ggplot(dados_graf,
+       aes(x = reorder(Cancer, total_n),
+           y = total_n)) +
+  geom_col(fill = "#4472C4") +
+  coord_flip() +
+  scale_y_continuous(
+    labels = label_number(scale = 1e-6, suffix = " M"),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  labs(
+    x = "Tipo de Câncer",
+    y = "Total de Casos",
+    title = "Total de casos por tipo de câncer"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text = element_text(size = 11, colour = "black"),
+    axis.title = element_text(size = 12, face = "bold"),
+    plot.title = element_text(
+      size = 14,
+      face = "bold",
+      hjust = 0.5
+    ),
+
+    axis.line = element_line(
+      colour = "black",
+      linewidth = 0.5
+    ),
+
+    panel.grid.major.x = element_line(
+      colour = "grey75",
+      linewidth = 0.5
+    ),
+    panel.grid.major.y = element_blank(),
+
+    panel.border = element_blank()
+  )
 ```
 
-## Coluna2 {width="50%"}
-
-### Linha1 {height="30%"}
-
-```{r}
-#| component: valuebox
-#| title: Pricipal causa 
-list(
-  color = "#fcefdc",
-  value = "🚬 Tabagismo"
-)
-```
-
-```{r}
-#| component: valuebox
-#| title: Letalidade do diagnóstico tardio
-list(
-  color = "#f0bab9",
-  value = "📈 Elevada"
-)
-```
-
-```{r}
-#| component: valuebox
-#| title: Orgãos e sistemas afetados
-list(
-  value = "🫁  Sistema respiratório",
-  color = "#adb5bd"
-)
-```
-
-### linha2 {.tabset height="60%"}
+### linha2 {.tabset height="50%"}
 
 ```{r}
 #| title: Título SubGráfico 1
