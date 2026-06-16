@@ -21,16 +21,63 @@ server: shiny
 
 ```{r}
 #| context: setup
-# O comando context: setup é importantíssimo para que
-# todos os pacotes funcionem perfeitamente no código todo
-library(ggplot2)
-library(shiny)
-library(readxl)
-library(dplyr)
-library(scales)
 
+require(tidyverse)
+require(ggplot2)
+require(shadowtext)
+require(colorspace)
+require(ggspatial)
+require(sf)
+require(shiny)
+require(plotly)
+require(patchwork)
+require(ggiraph)
+require(dplyr)
+require(scales)
+require(readxl)
+
+
+# ── Dados ──────────────────────────────────────────────────────────────────────
 dados <- read_excel("MortalidadeCancer.xlsx")
 
+Cancer_pulmao <- dados |> 
+  filter(Cancer == "Câncer de Pulmao") |> 
+  mutate(codigo = case_when(
+    local == "Centro-Oeste" ~ 5,
+    local == "Sudeste"      ~ 3,
+    local == "Sul"          ~ 4,
+    .default = codigo
+  ))
+
+#shapes <- readRDS("data/shapes.rds")
+
+#shape_rj <- readRDS("data/shape_rj.rds")
+
+# ── Constantes ─────────────────────────────────────────────────────────────────
+ESTADOS <- c(
+  "Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará",
+  "Distrito Federal", "Espírito Santo", "Goiás", "Maranhão",
+  "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará",
+  "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro (Estado)",
+  "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia", "Roraima",
+  "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
+)
+
+REGIOES <- c("Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul")
+
+NIVEIS_FAIXA <- c(
+  "0-4 anos", "5-9 anos", "10-14 anos", "15-19 anos",
+  "20-24 anos", "25-29 anos", "30-34 anos", "35-39 anos",
+  "40-44 anos", "45-49 anos", "50-54 anos", "55-59 anos",
+  "60-64 anos", "65-69 anos", "70-74 anos", "75-79 anos", "80-mais"
+)
+
+LABELS_FAIXA <- c(
+  "0-4", "5-9", "10-14", "15-19",
+  "20-24", "25-29", "30-34", "35-39",
+  "40-44", "45-49", "50-54", "55-59",
+  "60-64", "65-69", "70-74", "75-79", "80+"
+)
 ```
 
 # **ABA 1**
@@ -52,7 +99,18 @@ cat("
 - Figado
 - Ossos
 - Glândulas adrenais
+
+
+Código CID-10: 
+- C33 Neoplasia maligna da traquéia
+- C34.0 Brônquio principal
+- C34.1 Lobo superior, brônquio ou pulmão
+- C34.2 Lobo médio, brônquio ou pulmão
+- C34.3 Lobo inferior, brônquio ou pulmão
+- C34.8 Lesão invasiva dos brônquios e dos pulmões
+- C34.9 Brônquios ou pulmões, não especificado
 ")
+
 ```
 
 
@@ -97,9 +155,13 @@ list(
 ```
 
 
-## Coluna2 {width="60%"}
+## Coluna2 {.tabset width="60%"}
 
-### Linha 2 {height="25%"}
+### Principais caracteristicas
+## coluna 2 {height="100%"}
+
+
+
 ```{r}
 #| component: valuebox
 #| title: Tabagismo
