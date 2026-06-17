@@ -33,7 +33,7 @@ require(bsicons)
 
 
 # ── Dados ──────────────────────────────────────────────────────────────────────
-dados <- read_excel("C:\\Users\\agath\\OneDrive\\Documentos\\Trabalho Prática 2\\Projeto-II\\docs\\MortalidadeCancer.xlsx")
+dados <- read_excel("MortalidadeCancer.xlsx")
 
 Cancer_pulmao <- dados |> 
   filter(Cancer == "Câncer de Pulmao") |> 
@@ -44,9 +44,9 @@ Cancer_pulmao <- dados |>
     .default = codigo))
   
 
-shapes <- readRDS("C:\\Users\\agath\\OneDrive\\Documentos\\Trabalho Prática 2\\Projeto-II\\docs\\shapes.rds")
+shapes <- readRDS("shapes.rds")
 
-shape_rj <- readRDS("C:\\Users\\agath\\OneDrive\\Documentos\\Trabalho Prática 2\\Projeto-II\\docs\\shape_rj.rds")
+shape_rj <- readRDS("shape_rj.rds")
 
 # ── Constantes ─────────────────────────────────────────────────────────────────
 ESTADOS <- c(
