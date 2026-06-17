@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "TÍTULO DO TRABALHO"
 author: "Autor do Trabalho"
@@ -803,3 +804,274 @@ output$piramide <- renderPlot({
 
 plotOutput("piramide", width = "100%")
 ```
+=======
+---
+title: "TÍTULO DO TRABALHO"
+author: "Autor do Trabalho"
+format:
+  dashboard:
+     theme: 
+      - lux
+      - olympicdash.scss
+     orientation: columns
+     expandable: True
+     scrolling: False
+     css: custom.css
+     nav-buttons:
+      - icon: instagram
+        href: https://instagram.com
+      - icon: envelope
+        href: mailto:guilhermev@id.uff.br
+      - icon: github
+        href: https://github.com/GuilhermeGETUFF
+server: shiny
+---
+
+```{r}
+#| context: setup
+# O comando context: setup é importantíssimo para que
+# todos os pacotes funcionem perfeitamente no código todo
+library(ggplot2)
+library(shiny)
+library(readxl)
+library(dplyr)
+library(scales)
+
+dados <- read_excel("/home/aluno/Documentos/agatha - projeto 2/Projeto-II/docs/MortalidadeCancer.xlsx")
+
+```
+
+# **ABA 1**
+
+## Coluna1 {width="50%"}
+
+### Linha1 {height="60%"}
+
+```{r}
+#| title: O que é câncer de pulmão?
+#| results: asis
+#| layout-ncol: 2
+
+cat("
+É uma doença caracterizada pelo crescimento descontrolado de células anormais nos pulmões. É um dos tipos mais incidentes e uma das principais causas de morte por câncer no mundo, e pode afetar além do sistema respiratório:
+
+- Cérebro
+- Linfonodos
+- Figado
+- Ossos
+- Glândulas adrenais
+")
+```
+
+### Linha2 {height="40%"}
+```{r}
+#| component: valuebox
+#| title: Pricipal causa 
+list(
+  color = "#fcefdc",
+  value = "🚬 Tabagismo"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Letalidade do diagnóstico tardio
+list(
+  color = "#f0bab9",
+  value = "📈 Elevada"
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: Orgãos e sistemas afetados
+list(
+  value = "🫁  Sistema respiratório",
+  color = "#adb5bd"
+)
+```
+
+
+## Coluna2 {width="50%"}
+
+### Linha1 {height="50%"}
+
+```{r}
+#| title: Comparação dos tipos de Câncer
+#| fig-width: 16
+#| fig-height: 4
+#| out-width: 100%
+#| fig-align: center
+
+dados_graf <- dados %>%
+  group_by(Cancer) %>%
+  summarise(total_n = sum(n, na.rm = TRUE)) %>%
+  arrange(total_n)
+
+ggplot(dados_graf,
+       aes(x = reorder(Cancer, total_n),
+           y = total_n)) +
+  geom_col(fill = "#4472C4") +
+  coord_flip() +
+  scale_y_continuous(
+    labels = label_number(scale = 1e-6, suffix = " M"),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  labs(
+    x = "Tipo de Câncer",
+    y = "Total de Casos",
+    title = "Total de casos por tipo de câncer"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text = element_text(size = 11, colour = "black"),
+    axis.title = element_text(size = 12, face = "bold"),
+    plot.title = element_text(
+      size = 14,
+      face = "bold",
+      hjust = 0.5
+    ),
+
+    axis.line = element_line(
+      colour = "black",
+      linewidth = 0.5
+    ),
+
+    panel.grid.major.x = element_line(
+      colour = "grey75",
+      linewidth = 0.5
+    ),
+    panel.grid.major.y = element_blank(),
+
+    panel.border = element_blank()
+  )
+```
+
+### linha2 {.tabset height="50%"}
+
+```{r}
+#| title: Título SubGráfico 1
+#| fig-width: 4
+#| fig-height: 3
+ggplot(mtcars, aes(mpg)) + geom_density()
+```
+
+```{r}
+#| title: Título SubGráfico 2
+#| fig-width: 4
+#| fig-height: 3
+ggplot(mtcars, aes(factor(cyl), mpg)) + geom_boxplot()
+```
+
+
+
+# **ABA 2**
+
+## Coluna1 {.sidebar width="30%"}
+
+### ESCOLHA OS PARÂMETROS
+
+```{r}
+# input das barras
+sliderInput("barras",
+            "Número de Barras do Histograma:",
+            min = 1,
+            max = 50,
+            value = 30)
+
+# input da transparência
+sliderInput("alpha",
+            "Transparência da Densidade:",
+            min = 0,
+            max = 1,
+            value = 0.8,
+            step = 0.1)
+
+# input da cor do boxplot
+selectInput("corBox",
+            "Cor do Boxplot:",
+            choices = c("darkgray", "steelblue", "tomato", "forestgreen"),
+            selected = "darkgray")
+
+# input do tamanho do ponto
+numericInput("sizeponto",
+             "Tamanho do Ponto :",
+             value = 2,
+             min = 1, max = 5)
+```
+
+## Coluna2 {width="35%"}
+
+### Linha1 {height="50%"}
+
+```{r}
+#| title: Título Gráfico 1
+#| fig-width: 4
+#| fig-height: 3
+plotOutput("distPlot1")
+```
+
+### Linha2 {height="50%"}
+
+```{r}
+#| title: Título Gráfico 2
+#| fig-width: 4
+#| fig-height: 3
+plotOutput("distPlot2")
+```
+
+## Coluna2 {width="35%"}
+
+### Linha1 {height="50%"}
+
+```{r}
+#| title: Título Gráfico 3
+#| fig-width: 4
+#| fig-height: 3
+plotOutput("distPlot3")
+```
+
+### Linha2 {height="50%"}
+
+```{r}
+#| title: Título Gráfico 4
+#| fig-width: 4
+#| fig-height: 3
+plotOutput("distPlot4")
+```
+
+```{r}
+#| context: server
+
+# Histograma
+output$distPlot1 <- renderPlot({
+  ggplot(faithful, aes(x = waiting)) +
+    geom_histogram(
+      bins = input$barras) +
+    labs(x = "Waiting time (minutes)",
+      y = "Frequência") 
+})
+# Densidade
+output$distPlot2 <- renderPlot({
+  ggplot(faithful, aes(x = waiting)) +
+    geom_density(fill = "lightblue",
+                 alpha = input$alpha) +
+    labs(x = "Waiting time (minutes)",
+      y = "Densidade") 
+})
+# Boxplot
+output$distPlot3 <- renderPlot({
+  ggplot(faithful, aes(y = waiting)) +
+    geom_boxplot(fill = input$corBox) +
+    labs(title = "Boxplot",
+      y = "Waiting time (minutes)") 
+})
+# Dispersão
+output$distPlot4 <- renderPlot({
+  ggplot(faithful, aes(x = eruptions, y = waiting)) +
+    geom_point( size= input$sizeponto  ) +
+    labs(x = "Eruptions (minutes)",
+      y = "Waiting time (minutes)") 
+})
+```
+>>>>>>> 2051d7d07ffe6611b2eca83d4910b65a8874c134
