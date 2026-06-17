@@ -1,6 +1,6 @@
 ---
-title: "TÍTULO DO TRABALHO"
-author: "Autor do Trabalho"
+title: "Analise da mortalidade por câncer de pulmão"
+author: "Agatha Dias"
 format:
   dashboard:
      theme: 
@@ -9,13 +9,6 @@ format:
      expandable: True
      scrolling: False
      css: custom.css
-     nav-buttons:
-      - icon: instagram
-        href: https://instagram.com
-      - icon: envelope
-        href: mailto:guilhermev@id.uff.br
-      - icon: github
-        href: https://github.com/GuilhermeGETUFF
 server: shiny
 ---
 
@@ -35,6 +28,8 @@ require(ggiraph)
 require(dplyr)
 require(scales)
 require(readxl)
+require(shadowtext)
+require(bsicons)
 
 
 # ── Dados ──────────────────────────────────────────────────────────────────────
@@ -263,14 +258,13 @@ list(
 
 ## Coluna 1 {.sidebar width="20%"}
 
-::: {style="display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #ae8b2d; border-top: 1px solid #343a40; border-bottom: 1px solid #343a40; padding: 0.6rem 0; margin-bottom: 1rem;"}
-Painel de Seleção
-:::
-
 ```{r}
 selectInput(
   "territorio", "Nível Geográfico:",
-  choices  = c("Brasil", "Regional", "Estadual"),
+  choices = c(
+    "Brasil",
+    "Regional",
+    "Estadual"),
   selected = "Brasil"
 )
 ```
@@ -339,6 +333,22 @@ selectInput(
 )
 ```
 
+---
+
+```{r}
+selectInput(
+  "muni", "Município:",
+  choices = list(
+    "Estado" = list("Rio de Janeiro (Estado)" = "Rio de Janeiro (Estado)"),
+    "Municípios" = as.list(setNames(
+      unique(Cancer_pulmao$local[!Cancer_pulmao$local %in% c(ESTADOS, REGIOES, "Brasil")]),
+      unique(Cancer_pulmao$local[!Cancer_pulmao$local %in% c(ESTADOS, REGIOES, "Brasil")])
+    ))
+  ),
+  selected = "Rio de Janeiro (Estado)"
+)
+```
+
 ## Coluna 2 {.tabset width="80%"}
 
 ### Espacial
@@ -350,7 +360,7 @@ selectInput(
 ```{r}
 #| context: server
 
-output$barras <- renderPlot({
+output$boxplot <- renderPlot({
 
   territorio <- switch(input$territorio,
     "Estadual" = ESTADOS,
@@ -359,42 +369,28 @@ output$barras <- renderPlot({
   )
 
   df_plot <- Cancer_pulmao |>
-    filter(
-      local %in% territorio,
-      ano   == input$ano,
-      sexo  == "Ambos",
-      faixa == "todas as idades"
-    ) |>
-    mutate(
-      taxa  = (n / populacao) * 100000,
-      local = reorder(local, taxa)
-    )
+  filter(
+    local %in% territorio,
+    sexo == "Ambos",
+    faixa == "todas as idades"
+  ) |>
+  mutate(
+    taxa = (n / populacao) * 100000
+  ) |>
+  mutate(
+    minimo  = min(taxa, na.rm = TRUE),
+    Q1      = quantile(taxa, 0.25, na.rm = TRUE),
+    mediana = median(taxa, na.rm = TRUE),
+    Q3      = quantile(taxa, 0.75, na.rm = TRUE),
+    maximo  = max(taxa, na.rm = TRUE)
+  )
 
   req(nrow(df_plot) > 0)
 
   taxa_max <- max(df_plot$taxa, na.rm = TRUE)
 
-  ggplot(df_plot, aes(x = local, y = taxa, fill = taxa)) +
-    geom_col(width = 0.7) +
-    shadowtext::geom_shadowtext(
-      aes(label = round(taxa, 1),
-          y = taxa - taxa_max * 0.02),
-      hjust    = 1.15,
-      color    = "white",
-      bg.color = "#1e293b",
-      bg.r     = 0.1,
-      fontface = "bold",
-      size     = 3.2
-    ) +
-    scale_fill_gradientn(
-      colors = c(
-        "#fff1f1",
-        "#fca5a5",
-        "#ef4444",
-        "#b91c1c",
-        "#7f1d1d"
-      )
-    ) +
+   ggplot(df_plot, aes(x = local, y = taxa, color = local)) +
+    geom_boxplot(width = 0.7)+
     coord_flip() +
     theme_minimal()
 })
@@ -405,7 +401,7 @@ output$barras <- renderPlot({
 #| out-width: "100%"
 
 plotOutput(
-  "barras",
+  "boxplot",
   width = "100%",
   height = "100%"
 )
@@ -458,7 +454,13 @@ output$mapa_br <- renderPlot({
       fill = NA, color = "#1e293b", linewidth = 0.8
     ) +
     scale_fill_gradientn(
-      colors   = c("#fff1f1", "#fca5a5", "#ef4444", "#b91c1c", "#7f1d1d"),
+      colors   = c(
+        "#d2ebf5",
+        "#a5d7ec",
+        "#79c3e2",
+        "#1f9bcf",
+        "#007bff"
+      ),
       na.value = "#e2e8f0",
       name     = "Taxa por\n100 mil hab.",
       guide    = guide_colorbar(
@@ -535,11 +537,11 @@ output$serie <- plotly::renderPlotly({
 
   # ── Cores base por região ───────────────────────────────────────────────────
   COR_REGIAO <- c(
-    "Norte"        = "#2e7d32",
-    "Nordeste"     = "#e65100",
-    "Centro-Oeste" = "#6a1b9a",
-    "Sudeste"      = "#1565c0",
-    "Sul"          = "#ad1457"
+    "Norte"        = "#d9534f",
+    "Nordeste"     = "#6f42c1",
+    "Centro-Oeste" = "#4bbf73",
+    "Sudeste"      = "#f0ad4e",
+    "Sul"          = "#1f9bcf"
   )
 
   ESTADO_REGIAO <- c(
@@ -626,13 +628,13 @@ output$serie <- plotly::renderPlotly({
     ) +
     geom_vline(
       xintercept = input$ano,
-      color = "#ae8b2d", linewidth = 0.8, linetype = "dashed", alpha = 0.7
+      color = "#4472C4", linewidth = 0.8, linetype = "dashed", alpha = 0.7
     ) +
     annotate("text",
       x     = input$ano, y = Inf,
       label = input$ano,
       vjust = 2.5, size = 3,
-      color = "#ae8b2d", fontface = "bold"
+      color = "#4472C4", fontface = "bold"
     ) +
     scale_x_continuous(breaks = seq(2001, 2024, by = 3), expand = c(0, 0.5)) +
     scale_y_continuous(labels = scales::comma) +
@@ -792,4 +794,307 @@ output$piramide <- renderPlot({
 #| expandable: true
 
 plotOutput("piramide", width = "100%")
+```
+
+### Rio de Janeiro
+
+
+```{r}
+#| context: server
+
+card_style <- function(bg) {
+  glue::glue(
+    "background:{bg}; color:white; border-radius:8px;
+     padding:12px 16px; height:100%; display:flex;
+     flex-direction:column; justify-content:center;"
+  )
+}
+
+output$vbox_obitos_rj <- renderUI({
+  total <- Cancer_pulmao |>
+    filter(local == input$muni, ano == input$ano,
+           faixa == "todas as idades", sexo == "Ambos") |>
+    pull(n)
+
+  div(style = card_style("#919aa1"),
+    div(style = "font-size:0.85rem; opacity:0.9; margin-bottom:4px;",
+        bsicons::bs_icon("shield-exclamation"), " Óbitos"),
+    div(style = "font-size:1.8rem; font-weight:bold; line-height:1.2;",
+        scales::number(total, big.mark = ".", decimal.mark = ",")),
+    div(style = "font-size:0.72rem; opacity:0.75; margin-top:4px;",
+    "Ambos os sexos · todas as idades")
+  )
+})
+
+output$vbox_masc_rj <- renderUI({
+  total <- Cancer_pulmao |>
+    filter(local == input$muni, ano == input$ano,
+           faixa == "todas as idades", sexo == "Masculino") |>
+    pull(n)
+
+  div(style = card_style("#2196F3"),
+    div(style = "font-size:0.85rem; opacity:0.9; margin-bottom:4px;",
+        bsicons::bs_icon("person-fill"), " Óbitos Masculinos"),
+    div(style = "font-size:1.8rem; font-weight:bold; line-height:1.2;",
+        scales::number(total, big.mark = ".", decimal.mark = ",")),
+    div(style = "font-size:0.72rem; opacity:0.75; margin-top:4px;",
+    "todas as idades")
+  )
+})
+
+output$vbox_pop_rj <- renderUI({
+  total <- Cancer_pulmao |>
+    filter(local == input$muni, ano == input$ano,
+           faixa == "todas as idades", sexo == "Ambos") |>
+    pull(populacao)
+
+  div(style = card_style("#f9deb8"),
+    div(style = "font-size:0.85rem; opacity:0.9; margin-bottom:4px;",
+        bsicons::bs_icon("people-fill"), " População"),
+    div(style = "font-size:1.8rem; font-weight:bold; line-height:1.2;",
+        scales::number(total, big.mark = ".", decimal.mark = ",")),
+    div(style = "font-size:0.72rem; opacity:0.75; margin-top:4px;",
+        "Ambos os sexos · todas as idades")
+  )
+})
+
+output$vbox_fem_rj <- renderUI({
+  total <- Cancer_pulmao |>
+    filter(local == input$muni, ano == input$ano,
+           faixa == "todas as idades", sexo == "Feminino") |>
+    pull(n)
+
+  div(style = card_style("#E91E63"),
+    div(style = "font-size:0.85rem; opacity:0.9; margin-bottom:4px;",
+        bsicons::bs_icon("person-fill"), " Óbitos Femininos"),
+    div(style = "font-size:1.8rem; font-weight:bold; line-height:1.2;",
+        scales::number(total, big.mark = ".", decimal.mark = ",")),
+    div(style = "font-size:0.72rem; opacity:0.75; margin-top:4px;",
+        "todas as idades")
+  )
+})
+```
+
+##### Coluna 1 {width="30%"} 
+
+```{r}
+uiOutput("vbox_obitos_rj")
+```
+
+```{r}
+uiOutput("vbox_pop_rj")
+```
+
+```{r}
+uiOutput("vbox_masc_rj")
+```
+
+```{r}
+uiOutput("vbox_fem_rj")
+```
+
+##### Coluna 2 {width="70%"}
+
+###### linha 1 {height="50%"}
+
+```{r}
+#| context: server
+
+output$mapa_rj <- renderGirafe({
+  df_mapa_rj <- shape_rj |>
+    left_join(
+      Cancer_pulmao |>
+        filter(
+          ano   == input$ano,
+          sexo  == "Ambos",
+          faixa == "todas as idades"
+        ) |>
+        mutate(taxa = (n / populacao) * 100000),
+      by = "codigo"
+    )
+
+  plot_mapa_rj <- ggplot() +
+    geom_sf_interactive(
+      data = df_mapa_rj,
+      aes(
+        fill    = taxa,
+        geometry = geometry,
+        tooltip = paste0("<b>", local, "</b><br>Taxa: ", round(taxa, 1), " por 100 mil"),
+        data_id = codigo
+      ),
+      color = "white", linewidth = 0.15
+    ) +
+    geom_sf(
+      data = shape_rj,
+      fill = NA, color = "#94a3b8", linewidth = 0.3
+    ) +
+    geom_sf(
+      data = shapes |> filter(codigo == 33),
+      fill = NA, color = "#1e293b", linewidth = 0.8
+    ) +
+    scale_fill_gradientn(
+      colors   = c(
+        "#d2ebf5",
+        "#a5d7ec",
+        "#79c3e2",
+        "#1f9bcf",
+        "#007bff"
+      ),
+      na.value = "#e2e8f0",
+      name     = "Taxa por\n100 mil hab.",
+      guide    = guide_colorbar(
+        barwidth        = unit(0.5, "cm"),
+        barheight       = unit(7, "cm"),
+        ticks           = FALSE,
+        frame.colour    = "#cbd5e1",
+        frame.linewidth = 0.4,
+        title.hjust     = 0.5,
+        title.theme     = element_text(size = 9, color = "#334155",
+                                      face = "bold", lineheight = 1.4),
+        label.theme     = element_text(size = 12, color = "#64748b")
+      )
+    ) +
+    annotation_north_arrow(
+      location    = "tl", which_north = "true",
+      pad_x = unit(0.4, "cm"), pad_y = unit(0.4, "cm"),
+      style = north_arrow_fancy_orienteering(
+        text_col  = "#334155", line_col = "#334155",
+        fill      = c("#b91c1c", "#f8fafc"), text_size = 6
+      ),
+      height = unit(2.0, "cm"), width = unit(2.0, "cm")
+    ) +
+    annotation_scale(
+      location = "br", width_hint = 0.2,
+      text_cex = 0.5, line_width = 0.5,
+      text_col = "#64748b", line_col = "#94a3b8"
+    ) +
+    labs(title = glue::glue("Rio de Janeiro · {input$ano}")) +
+    theme_void(base_size = 11) +
+    theme(
+      plot.title.position  = "plot",
+      plot.title           = element_text(face = "bold", size = 10,
+                                          color = "#1e293b", hjust = 0.5,
+                                          margin = margin(b = 4)),
+      plot.margin          = margin(4, 8, 4, 4),
+      legend.position      = "right",
+      legend.justification = "center",
+      legend.margin        = margin(0, 0, 0, 2)
+    )
+
+  girafe(
+    ggobj      = plot_mapa_rj,
+    width_svg  = 9,
+    height_svg = 9,
+    options = list(
+      opts_hover(css = "fill-opacity:0.75; stroke:#1e293b; stroke-width:1.5px;"),
+      opts_hover_inv(css = "fill-opacity:0.2;"),
+      opts_tooltip(
+        css       = "background:#1e293b; color:white; padding:6px 10px;
+                    border-radius:5px; font-size:12px; line-height:1.5;",
+        use_fill  = FALSE,
+        delay_mouseout = 500
+      ),
+      opts_sizing(rescale = TRUE, width = 1)
+    )
+  )
+})
+```
+
+```{r}
+#| padding: 0
+
+girafeOutput(
+  "mapa_rj",
+  width  = "100%",
+  height = "100vh" 
+)
+```
+
+###### Linha 2 {hight="50%"}
+
+```{r}
+#| context: server
+
+output$serie_rj <- renderPlot({
+
+  df_serie_rj <- Cancer_pulmao |>
+    filter(
+      local %in% input$muni,
+      faixa == "todas as idades",
+      sexo  == "Ambos"
+    ) |>
+    mutate(taxa = (n / populacao) * 100000)
+
+  ggplot(df_serie_rj, aes(x = ano, y = taxa)) +
+    geom_line(aes(color = "Observado"), linewidth = 1.2) +
+    geom_point(aes(color = "Observado"), size = 2, alpha = 0.8) +
+    geom_smooth(
+      method   = "loess", se = FALSE,
+      aes(color = "Tendência (LOESS)"),
+      linetype = "dashed", linewidth = 0.8
+    ) +
+    annotate("rect",
+      xmin = 2020, xmax = 2022, ymin = -Inf, ymax = Inf,
+      alpha = 0.08, fill = "gray70"
+    ) +
+    annotate("text",
+      x = 2021, y = Inf, label = "COVID-19",
+      vjust = 1.5, size = 3, color = "gray40", fontface = "italic"
+    ) +
+    scale_x_continuous(breaks = seq(2001, 2024, by = 3), expand = c(0, 0.5)) +
+    scale_y_continuous(labels = scales::number_format(big.mark = "")) +
+    scale_color_manual(
+      name   = NULL,
+      values = c("Observado" = "#2c3e50", "Tendência (LOESS)" = "#f39c12")
+    ) +
+    labs(
+      title    = glue::glue("Taxa de Mortalidade · {input$muni}"),
+      subtitle = "Evolução anual (2001–2024) | Todas as idades, ambos os sexos",
+      x = NULL, y = NULL
+    ) +
+    geom_vline(
+      xintercept = input$ano,
+      color = "#1f9bcf", linewidth = 0.8, linetype = "dashed", alpha = 0.7
+    ) +
+    annotate("text",
+      x     = input$ano, y = Inf,
+      label = input$ano,
+      vjust = 2.5, size = 3,
+      color = "#1f9bcf", fontface = "bold"
+    ) +
+    geom_label(
+      data = df_serie_rj |> filter(ano == input$ano),
+      aes(
+        x = ano,
+        y = taxa,
+        label = sprintf("%.1f", taxa)
+      ),
+      vjust = -0.8,
+      size = 3.5,
+      fontface = "bold",
+      fill = "#1f9bcf",
+      color = "#2c3e50",
+      label.size = 0.4,
+      label.padding = unit(0.15, "lines")
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.title           = element_text(face = "bold", size = 15, hjust = 0.5),
+      plot.subtitle        = element_text(color = "gray40", hjust = 0.5),
+      panel.grid.major.y   = element_line(color = "gray90", linewidth = 0.4),
+      panel.grid.major.x   = element_blank(),
+      panel.grid.minor     = element_blank(),
+      axis.ticks.x         = element_line(color = "gray70"),
+      axis.text            = element_text(color = "gray30"),
+      plot.margin          = margin(10, 15, 10, 10),
+      legend.position      = "right",
+      legend.justification = "center",
+    )
+})
+```
+
+```{r}
+#| expandable: true
+
+plotOutput("serie_rj", width = "100%")
 ```
