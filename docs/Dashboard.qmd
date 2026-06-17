@@ -38,7 +38,7 @@ require(readxl)
 
 
 # ── Dados ──────────────────────────────────────────────────────────────────────
-dados <- read_excel("MortalidadeCancer.xlsx")
+dados <- read_excel("C:\\Users\\agath\\OneDrive\\Documentos\\Trabalho Prática 2\\Projeto-II\\docs\\MortalidadeCancer.xlsx")
 
 Cancer_pulmao <- dados |> 
   filter(Cancer == "Câncer de Pulmao") |> 
@@ -46,12 +46,12 @@ Cancer_pulmao <- dados |>
     local == "Centro-Oeste" ~ 5,
     local == "Sudeste"      ~ 3,
     local == "Sul"          ~ 4,
-    .default = codigo
-  ))
+    .default = codigo))
+  
 
-#shapes <- readRDS("data/shapes.rds")
+shapes <- readRDS("data/shapes.rds")
 
-#shape_rj <- readRDS("data/shape_rj.rds")
+shape_rj <- readRDS("data/shape_rj.rds")
 
 # ── Constantes ─────────────────────────────────────────────────────────────────
 ESTADOS <- c(
@@ -80,7 +80,7 @@ LABELS_FAIXA <- c(
 )
 ```
 
-# **ABA 1**
+# **Contextualização**
 
 ## Coluna1 {width="40%"}
 
@@ -99,22 +99,12 @@ cat("
 - Figado
 - Ossos
 - Glândulas adrenais
-
-
-Código CID-10: 
-- C33 Neoplasia maligna da traquéia
-- C34.0 Brônquio principal
-- C34.1 Lobo superior, brônquio ou pulmão
-- C34.2 Lobo médio, brônquio ou pulmão
-- C34.3 Lobo inferior, brônquio ou pulmão
-- C34.8 Lesão invasiva dos brônquios e dos pulmões
-- C34.9 Brônquios ou pulmões, não especificado
 ")
 
 ```
 
 
-### Linha 2 {height="25%"}
+### Linha 2 {height="20%"}
 ```{r}
 #| component: valuebox
 #| title: Crescimento celular acelerado
@@ -130,7 +120,7 @@ list(
 
 list(
   color = "#e0e1e2",
-  value = "😮💨"
+  value = "😮‍💨"
 )
 ```
 
@@ -155,12 +145,9 @@ list(
 ```
 
 
-## Coluna2 {.tabset width="60%"}
+## Coluna2  {width="60%"}
 
-### Principais caracteristicas
-## coluna 2 {height="100%"}
-
-
+### linha 1 {height= 30%}
 
 ```{r}
 #| component: valuebox
@@ -209,38 +196,39 @@ list(
 )
 ```
 
+
+### linha2 {height="50%"}
+
 ```{r}
 #| title: Comparação dos tipos de Câncer
 #| fig-width: 16
-#| fig-height: 3
+#| fig-height: 7
 #| out-width: 100%
 #| fig-align: center
 
-dados_graf <- dados %>%
-  group_by(Cancer) %>%
-  summarise(total_n = sum(n, na.rm = TRUE)) %>%
-  arrange(total_n)
+dados_graf <- dados  |> 
+  group_by(Cancer) |> 
+  summarise(total_n = sum(n, na.rm = TRUE),
+            total_pop = sum(populacao, na.rm = TRUE),
+            taxa_mortalidade = (total_n/total_pop)*100000) |> 
+  arrange(total_n, total_pop, taxa_mortalidade)
 
 ggplot(dados_graf,
-       aes(x = reorder(Cancer, total_n),
-           y = total_n)) +
+       aes(x = reorder(Cancer, taxa_mortalidade),
+           y = taxa_mortalidade)) +
   geom_col(fill = "#4472C4") +
   coord_flip() +
-  scale_y_continuous(
-    labels = label_number(scale = 1e-6, suffix = " M"),
-    expand = expansion(mult = c(0, 0.05))
-  ) +
   labs(
     x = "Tipo de Câncer",
-    y = "Total de Casos",
-    title = "Total de casos por tipo de câncer"
+    y = "Número de óbitos por 100 mil habitantes",
+    title = "Taxa de mortalidade por tipo de câncer"
   ) +
   theme_minimal(base_size = 12) +
   theme(
-    axis.text = element_text(size = 11, colour = "black"),
-    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 25, colour = "black"),
+    axis.title = element_text(size = 25, face = "bold"),
     plot.title = element_text(
-      size = 14,
+      size = 30,
       face = "bold",
       hjust = 0.5
     ),
@@ -260,130 +248,558 @@ ggplot(dados_graf,
   )
 ```
 
-### linha2 {.tabset height="50%"}
+### linha 3 {height= 10%}
 
 ```{r}
-#| title: Título SubGráfico 1
-#| fig-width: 4
-#| fig-height: 3
-ggplot(mtcars, aes(mpg)) + geom_density()
+#| component: valuebox
+#| title: 🩺 Diagnóstico ➠ 📋 Estadiamento ➠ 💊 Escolha terapêutica ➠ 🧑‍⚕️ Acompanhamento
+list(
+  value = " ",
+  color = "#b7e5c7"
+)
 ```
 
+# **Taxa de Mortalidade - Brasil, Estado e Região**
+
+## Coluna 1 {.sidebar width="20%"}
+
+::: {style="display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #ae8b2d; border-top: 1px solid #ae8b2d44; border-bottom: 1px solid #ae8b2d44; padding: 0.6rem 0; margin-bottom: 1rem;"}
+Painel de Seleção
+:::
+
 ```{r}
-#| title: Título SubGráfico 2
-#| fig-width: 4
-#| fig-height: 3
-ggplot(mtcars, aes(factor(cyl), mpg)) + geom_boxplot()
+selectInput(
+  "territorio", "Nível Geográfico:",
+  choices  = c("Brasil", "Regional", "Estadual"),
+  selected = "Brasil"
+)
 ```
 
-
-
-# **ABA 2**
-
-## Coluna1 {.sidebar width="30%"}
-
-### ESCOLHA OS PARÂMETROS
+---
 
 ```{r}
-# input das barras
-sliderInput("barras",
-            "Número de Barras do Histograma:",
-            min = 1,
-            max = 50,
-            value = 30)
+sliderInput(
+  "ano", "Ano:",
+  min = 2001, max = 2024, value = 2024, sep = "", width = "100%"
+)
 
-# input da transparência
-sliderInput("alpha",
-            "Transparência da Densidade:",
-            min = 0,
-            max = 1,
-            value = 0.8,
-            step = 0.1)
+actionButton(
+  "play", label = NULL,
+  icon  = icon("play"),
+  style = "width:100%; margin-top:4px;"
+)
 
-# input da cor do boxplot
-selectInput("corBox",
-            "Cor do Boxplot:",
-            choices = c("darkgray", "steelblue", "tomato", "forestgreen"),
-            selected = "darkgray")
-
-# input do tamanho do ponto
-numericInput("sizeponto",
-             "Tamanho do Ponto :",
-             value = 2,
-             min = 1, max = 5)
-```
-
-## Coluna2 {width="35%"}
-
-### Linha1 {height="50%"}
-
-```{r}
-#| title: Título Gráfico 1
-#| fig-width: 4
-#| fig-height: 3
-plotOutput("distPlot1")
-```
-
-### Linha2 {height="50%"}
-
-```{r}
-#| title: Título Gráfico 2
-#| fig-width: 4
-#| fig-height: 3
-plotOutput("distPlot2")
-```
-
-## Coluna2 {width="35%"}
-
-### Linha1 {height="50%"}
-
-```{r}
-#| title: Título Gráfico 3
-#| fig-width: 4
-#| fig-height: 3
-plotOutput("distPlot3")
-```
-
-### Linha2 {height="50%"}
-
-```{r}
-#| title: Título Gráfico 4
-#| fig-width: 4
-#| fig-height: 3
-plotOutput("distPlot4")
 ```
 
 ```{r}
 #| context: server
 
-# Histograma
-output$distPlot1 <- renderPlot({
-  ggplot(faithful, aes(x = waiting)) +
-    geom_histogram(
-      bins = input$barras) +
-    labs(x = "Waiting time (minutes)",
-      y = "Frequência") 
+# estado do botão: tocando ou pausado
+playing <- reactiveVal(FALSE)
+
+observeEvent(input$play, {
+  playing(!playing())
+  
+  # troca o ícone
+  if (playing()) {
+    updateActionButton(session, "play", icon = icon("pause"))
+  } else {
+    updateActionButton(session, "play", icon = icon("play"))
+  }
 })
-# Densidade
-output$distPlot2 <- renderPlot({
-  ggplot(faithful, aes(x = waiting)) +
-    geom_density(fill = "lightblue",
-                 alpha = input$alpha) +
-    labs(x = "Waiting time (minutes)",
-      y = "Densidade") 
+
+# timer que dispara a cada 1 segundo quando playing == TRUE
+autoplay <- reactiveTimer(1000)
+
+observe({
+  autoplay()
+  req(playing())
+  
+  ano_atual <- isolate(input$ano)
+  
+  if (ano_atual < 2024) {
+    updateSliderInput(session, "ano", value = ano_atual + 1)
+  } else {
+    # chegou no fim — pausa e volta o ícone
+    playing(FALSE)
+    updateActionButton(session, "play", icon = icon("play"))
+  }
 })
-# Boxplot
-output$distPlot3 <- renderPlot({
-  ggplot(faithful, aes(y = waiting)) +
-    geom_boxplot(fill = input$corBox) +
-    labs(title = "Boxplot",
-      y = "Waiting time (minutes)") 
+```
+
+---
+
+Pirâmide Etária
+
+```{r}
+selectInput(
+  "local", "Local:",
+  choices  = c("Brasil", REGIOES),
+  selected = "Brasil"
+)
+```
+
+::: sidebar-footer
+Fonte: SIM/DATASUS · `{microdatasus}`
+:::
+
+## Coluna 2 {.tabset width="80%"}
+
+### Espacial
+
+#### Linha1 {height="50%"}
+
+##### Coluna 1 {width="50%"}
+
+```{r}
+#| context: server
+
+output$barras <- renderPlot({
+
+  territorio <- switch(input$territorio,
+    "Estadual" = ESTADOS,
+    "Regional" = REGIOES,
+    "Brasil"   = "Brasil"
+  )
+
+  df_plot <- Cancer_pulmao |>
+    filter(
+      local %in% territorio,
+      ano   == input$ano,
+      sexo  == "Ambos",
+      faixa == "todas as idades"
+    ) |>
+    mutate(
+      taxa  = (n / populacao) * 100000,
+      local = reorder(local, taxa)
+    )
+
+  taxa_max <- max(df_plot$taxa)
+
+  ggplot(df_plot, aes(x = local, y = taxa, fill = taxa)) +
+    geom_col(width = 0.7) +
+    shadowtext::geom_shadowtext(
+      aes(label = round(taxa, 1), y = taxa - taxa_max * 0.02),
+      hjust      = 1.15,
+      color      = "white",
+      bg.color   = "#1e293b",
+      bg.r       = 0.1,
+      fontface   = "bold",
+      size       = 3.2
+    ) +
+    scale_fill_gradientn(
+      colors   = c("#fff1f1", "#fca5a5", "#ef4444", "#b91c1c", "#7f1d1d"),
+      name     = "Taxa por\n100 mil hab."
+    ) +
+    scale_y_continuous(
+      expand = expansion(mult = c(0, 0.08)),
+      labels = scales::number_format(accuracy = 0.1)
+    ) +
+    coord_flip(clip = "off") +
+    labs(
+      title = glue::glue("{input$territorio} · {input$ano}"),
+      x     = NULL,
+      y     = "Taxa por 100 mil habitantes"
+    ) +
+    theme_minimal(base_size = 11) +
+    theme(
+      plot.title          = element_text(face = "bold", size = 11,
+                                         color = "#1e293b", hjust = 0.5,
+                                         margin = margin(b = 8)),
+      plot.title.position = "plot",
+      plot.margin         = margin(8, 16, 8, 8),
+      panel.grid.major.y  = element_blank(),
+      panel.grid.major.x  = element_line(color = "#e2e8f0", linewidth = 0.5),
+      panel.grid.minor    = element_blank(),
+      axis.text.y         = element_text(size = 9, color = "#334155",
+                                         face = "bold"),
+      axis.text.x         = element_text(size = 8, color = "#64748b"),
+      axis.title.x        = element_text(size = 8, color = "#64748b",
+                                         margin = margin(t = 6)),
+      axis.ticks          = element_blank(),
+      legend.position     = "none"
+    )
 })
-# Dispersão
-output$distPlot4 <- renderPlot({
-  ggplot(faithful, aes(x = eruptions, y = waiting)) +
-    geom_point( size= input$sizeponto  ) +
-    labs(x = "Eruptions (minutes)",
-      y = "Waiting time (minutes)") 
+```
+
+```{r}
+#| expandable: true
+#| out-width: "100%"
+
+plotOutput("barras", width = "100%")
+```
+
+##### Coluna 2 {width="50%"}
+
+```{r}
+#| context: server
+
+output$mapa_br <- renderPlot({
+
+  territorio <- switch(input$territorio,
+    "Estadual" = ESTADOS,
+    "Regional" = REGIOES,
+    "Brasil"   = "Brasil"
+  )
+
+  codigos_contorno <- switch(input$territorio,
+    "Brasil"   = integer(0),
+    "Regional" = 1:5,
+    "Estadual" = unique(shapes$codigo[!shapes$codigo %in% 0:5])
+  )
+
+  df_mapa <- shapes |>
+    right_join(
+      Cancer_pulmao |>
+        filter(
+          local %in% territorio,
+          ano   == input$ano,
+          sexo  == "Ambos",
+          faixa == "todas as idades"
+        ) |>
+        mutate(taxa = (n / populacao) * 100000),
+      by = "codigo"
+    )
+
+  ggplot() +
+    geom_sf(
+      data  = df_mapa,
+      aes(fill = taxa, geometry = geometry),
+      color = "white", linewidth = 0.15
+    ) +
+    geom_sf(
+      data = shapes |> filter(codigo %in% codigos_contorno),
+      fill = NA, color = "#94a3b8", linewidth = 0.3
+    ) +
+    geom_sf(
+      data = shapes |> filter(codigo == 0),
+      fill = NA, color = "#1e293b", linewidth = 0.8
+    ) +
+    scale_fill_gradientn(
+      colors   = c("#fff1f1", "#fca5a5", "#ef4444", "#b91c1c", "#7f1d1d"),
+      na.value = "#e2e8f0",
+      name     = "Taxa por\n100 mil hab.",
+      guide    = guide_colorbar(
+        barwidth        = unit(0.35, "cm"),
+        barheight       = unit(4, "cm"),
+        ticks           = FALSE,
+        frame.colour    = "#cbd5e1",
+        frame.linewidth = 0.4,
+        title.hjust     = 0.5,
+        title.theme     = element_text(size = 6.5, color = "#334155",
+                                       face = "bold", lineheight = 1.4),
+        label.theme     = element_text(size = 6.5, color = "#64748b")
+      )
+    ) +
+    annotation_north_arrow(
+      location    = "bl", which_north = "true",
+      pad_x = unit(0.4, "cm"), pad_y = unit(0.4, "cm"),
+      style = north_arrow_fancy_orienteering(
+        text_col  = "#334155", line_col = "#334155",
+        fill      = c("#b91c1c", "#f8fafc"), text_size = 6
+      ),
+      height = unit(1.0, "cm"), width = unit(1.0, "cm")
+    ) +
+    annotation_scale(
+      location = "br", width_hint = 0.2,
+      text_cex = 0.5, line_width = 0.5,
+      text_col = "#64748b", line_col = "#94a3b8"
+    ) +
+    labs(title = glue::glue("{input$territorio} · {input$ano}")) +
+    theme_void(base_size = 11) +
+    theme(
+      plot.title.position  = "plot",
+      plot.title           = element_text(face = "bold", size = 10,
+                                          color = "#1e293b", hjust = 0.5,
+                                          margin = margin(b = 4)),
+      plot.margin          = margin(8, 48, 8, 8),
+      legend.position      = "right",
+      legend.justification = "center",
+      legend.margin        = margin(0, 0, 0, 4)
+    )
 })
+```
+
+```{r}
+#| padding: 0
+
+plotOutput("mapa_br", width = "100%", height = "100%", fill = TRUE)
+```
+
+#### Linha2 {height="50%"}
+
+```{r}
+#| context: server
+
+output$serie <- renderPlotly({
+
+  territorio <- switch(input$territorio,
+    "Estadual" = ESTADOS,
+    "Regional" = REGIOES,
+    "Brasil"   = "Brasil"
+  )
+
+  df_plot <- Cancer_pulmao |>
+    filter(
+      local %in% territorio,
+      faixa == "todas as idades",
+      sexo  == "Ambos"
+    ) |>
+    mutate(taxa = (n / populacao) * 100000)
+
+  # ── Cores base por região ───────────────────────────────────────────────────
+  COR_REGIAO <- c(
+    "Norte"        = "#2e7d32",
+    "Nordeste"     = "#e65100",
+    "Centro-Oeste" = "#6a1b9a",
+    "Sudeste"      = "#1565c0",
+    "Sul"          = "#ad1457"
+  )
+
+  ESTADO_REGIAO <- c(
+    "Acre"                    = "Norte",
+    "Amapá"                   = "Norte",
+    "Amazonas"                = "Norte",
+    "Pará"                    = "Norte",
+    "Rondônia"                = "Norte",
+    "Roraima"                 = "Norte",
+    "Tocantins"               = "Norte",
+    "Alagoas"                 = "Nordeste",
+    "Bahia"                   = "Nordeste",
+    "Ceará"                   = "Nordeste",
+    "Maranhão"                = "Nordeste",
+    "Paraíba"                 = "Nordeste",
+    "Pernambuco"              = "Nordeste",
+    "Piauí"                   = "Nordeste",
+    "Rio Grande do Norte"     = "Nordeste",
+    "Sergipe"                 = "Nordeste",
+    "Distrito Federal"        = "Centro-Oeste",
+    "Goiás"                   = "Centro-Oeste",
+    "Mato Grosso"             = "Centro-Oeste",
+    "Mato Grosso do Sul"      = "Centro-Oeste",
+    "Espírito Santo"          = "Sudeste",
+    "Minas Gerais"            = "Sudeste",
+    "Rio de Janeiro (Estado)" = "Sudeste",
+    "São Paulo"               = "Sudeste",
+    "Paraná"                  = "Sul",
+    "Rio Grande do Sul"       = "Sul",
+    "Santa Catarina"          = "Sul"
+  )
+
+  # ── Gera paleta ─────────────────────────────────────────────────────────────
+  cores_locais <- if (input$territorio == "Brasil") {
+
+    c("Brasil" = "#1e293b")
+
+  } else if (input$territorio == "Regional") {
+
+    COR_REGIAO[names(COR_REGIAO) %in% unique(df_plot$local)]
+
+  } else {
+    locais <- unique(df_plot$local)
+    unlist(lapply(names(COR_REGIAO), function(reg) {
+      estados_reg <- locais[ESTADO_REGIAO[locais] == reg]
+      if (length(estados_reg) == 0) return(NULL)
+      tons <- colorRampPalette(c(COR_REGIAO[reg], colorspace::lighten(COR_REGIAO[reg], 0.65)))(length(estados_reg))
+      setNames(tons, estados_reg)
+    }))
+  }
+
+  # ── Reordena local por região para a legenda ─────────────────────────────────
+  if (input$territorio == "Estadual") {
+    ordem <- unlist(lapply(names(COR_REGIAO), function(reg) {
+      sort(names(ESTADO_REGIAO)[ESTADO_REGIAO == reg])
+    }))
+    # mantém só os que estão no df
+    ordem <- ordem[ordem %in% unique(df_plot$local)]
+
+    df_plot <- df_plot |>
+      mutate(local = factor(local, levels = ordem))
+
+  } else if (input$territorio == "Regional") {
+    df_plot <- df_plot |>
+      mutate(local = factor(local, levels = names(COR_REGIAO)))
+  }
+
+  n_locais <- n_distinct(df_plot$local)
+
+  p <- ggplot(df_plot, aes(x = ano, y = taxa, color = local, group = local)) +
+    geom_line(linewidth = 1.1, alpha = 0.9) +
+    geom_point(size = 1.8, alpha = 0.75) +
+    geom_smooth(
+      method   = "loess", se = FALSE,
+      linetype = "dashed", linewidth = 0.7, alpha = 0.6
+    ) +
+    annotate("rect",
+      xmin = 2020, xmax = 2022, ymin = -Inf, ymax = Inf,
+      alpha = 0.08, fill = "gray70"
+    ) +
+    annotate("text",
+      x = 2021, y = Inf, label = "COVID-19",
+      vjust = 1.5, size = 3, color = "gray40", fontface = "italic"
+    ) +
+    geom_vline(
+      xintercept = input$ano,
+      color = "#ae8b2d", linewidth = 0.8, linetype = "dashed", alpha = 0.7
+    ) +
+    annotate("text",
+      x     = input$ano, y = Inf,
+      label = input$ano,
+      vjust = 2.5, size = 3,
+      color = "#ae8b2d", fontface = "bold"
+    ) +
+    scale_x_continuous(breaks = seq(2001, 2024, by = 3), expand = c(0, 0.5)) +
+    scale_y_continuous(labels = scales::comma) +
+    scale_color_manual(values = cores_locais, name = NULL) +
+    labs(
+      title = "Taxa de Mortalidade por 100 mil habitantes",
+      x = NULL, y = NULL
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.title         = element_text(hjust = 0.5),
+      panel.grid.major.y = element_line(color = "gray90", linewidth = 0.4),
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor   = element_blank(),
+      axis.ticks.x       = element_line(color = "gray70"),
+      axis.text          = element_text(color = "gray30"),
+      plot.margin        = margin(10, 15, 10, 10),
+      legend.position    = if (n_locais == 1) "none" else "right",
+      legend.text        = element_text(size = 9)
+    )
+
+  plotly::ggplotly(p)
+})
+```
+
+```{r}
+#| expandable: true
+
+plotOutput("serie", width = "100%")
+```
+
+### Etário
+
+```{r}
+#| context: server
+
+output$piramide <- renderPlot({
+
+  df_plot <- Cancer_pulmao |>
+    filter(
+      local  == input$local,
+      ano    == input$ano,
+      faixa  != "todas as idades",
+      sexo   != "Ambos"
+    ) |>
+    mutate(
+      idade_rotulada = factor(
+        faixa, levels = NIVEIS_FAIXA, labels = LABELS_FAIXA
+      ),
+      taxa = (n/populacao) * 100000
+    )
+
+  lim_x <- Cancer_pulmao |>
+    filter(
+      local  == input$local,
+      faixa  != "todas as idades",
+      sexo   != "Ambos"
+    ) |>
+    mutate(taxa = (n / populacao) * 100000) |>
+    summarise(max_taxa = max(taxa, na.rm = TRUE)) |>
+    pull(max_taxa) * 1.08
+
+  breaks_x <- pretty(c(0, lim_x), n = 5)
+
+  theme_piramide <- theme_minimal(base_size = 12) +
+    theme(
+      axis.text.y        = element_blank(),
+      axis.ticks.y       = element_blank(),
+      axis.text.x        = element_text(color = "gray50", size = 9),
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor   = element_blank()
+    )
+
+  p_masc <- df_plot |>
+    filter(sexo == "Masculino") |>
+    ggplot(aes(x = taxa, y = idade_rotulada)) +
+    geom_bar(stat = "identity", width = 0.75, fill = "#2196F3", alpha = 0.92) +
+    geom_text(aes(label = round(taxa, 1)), hjust = 1.25, size = 2.8,
+          color = "white", fontface = "bold") +
+    geom_text(
+      aes(x = taxa, label = round(taxa, 1)),
+      hjust    = 1.4,
+      size     = 2.6,
+      color    = "gray60",
+      fontface = "plain"
+    ) +
+    scale_x_reverse(
+      breaks = breaks_x, labels = breaks_x,
+      limits = c(lim_x, 0),
+      expand = expansion(mult = c(0.02, 0))
+    ) +
+    labs(title = "Masculino", x = NULL, y = NULL) +
+    theme_piramide +
+    theme(
+      plot.title  = element_text(face = "bold", hjust = 0.5,
+                                 color = "#2196F3", size = 13),
+      plot.margin = margin(5, 0, 5, 10)
+    )
+
+  p_centro <- distinct(df_plot, idade_rotulada) |>
+    ggplot(aes(x = 0.5, y = idade_rotulada)) +
+    geom_text(aes(label = idade_rotulada),
+              color = "#333333", size = 2.9, fontface = "bold") +
+    scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    labs(title = "Idade", x = NULL, y = NULL) +
+    theme_void() +
+    theme(
+      plot.title  = element_text(face = "bold", hjust = 0.5,
+                                 color = "gray40", size = 13),
+      plot.margin = margin(5, 2, 5, 2)
+    )
+
+  p_fem <- df_plot |>
+    filter(sexo == "Feminino") |>
+    ggplot(aes(x = taxa, y = idade_rotulada)) +
+    geom_bar(stat = "identity", width = 0.75, fill = "#E91E63", alpha = 0.92) +
+    geom_text(aes(label = round(taxa, 1)), hjust = -0.25, size = 2.8,
+          color = "white", fontface = "bold") +
+    geom_text(
+      aes(x = taxa, label = round(taxa, 1)),
+      hjust    = -0.4,
+      size     = 2.6,
+      color    = "gray60",
+      fontface = "plain"
+    ) +
+    scale_x_continuous(
+      breaks = breaks_x, labels = breaks_x,
+      limits = c(0, lim_x),
+      expand = expansion(mult = c(0, 0.02))
+    ) +
+    labs(title = "Feminino", x = NULL, y = NULL) +
+    theme_piramide +
+    theme(
+      plot.title  = element_text(face = "bold", hjust = 0.5,
+                                 color = "#E91E63", size = 13),
+      plot.margin = margin(5, 10, 5, 0)
+    )
+
+  (p_masc | p_centro | p_fem) +
+    plot_annotation(
+      title    = "Taxa de Mortalidade por 100 mil Habitantes",
+      subtitle = glue::glue("{input$local} · {input$ano}"),
+      theme    = theme(
+        plot.title    = element_text(face = "bold", hjust = 0.5, size = 17),
+        plot.subtitle = element_text(hjust = 0.5, color = "gray50", size = 10)
+      )
+    ) +
+    plot_layout(widths = c(5, 1.3, 5))
+})
+```
+
+```{r}
+#| expandable: true
+
+plotOutput("piramide", width = "100%")
 ```
